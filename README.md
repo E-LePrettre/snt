@@ -1,2 +1,1 @@
-# snt
-Copie des ressources SNT de la Forge Éducation — Elisabeth Le Prettre
+Rendu du site : [https://eleprettre.forge.apps.education.fr/snt/](https://eleprettre.forge.apps.education.fr/snt/)
