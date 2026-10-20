@@ -1,4 +1,4 @@
-﻿---
+---
 author: Elisabeth Le Prettre (LePrettre)
 title: 01d Programmer avec l'IA
 ---
@@ -25,7 +25,16 @@ Une IA capable d'écrire du code a été **entraînée** sur des quantités giga
 
     Un code plausible ressemble à du code correct : il a la bonne forme, les bons mots-clés, la bonne allure. Il peut pourtant donner un résultat faux.
 
-Ce n'est pas un défaut passager qu'on corrigera dans la prochaine version : c'est la conséquence directe de la manière dont ces systèmes fonctionnent. Ils n'exécutent pas le programme, ils ne le testent pas, ils ne savent pas ce que tu voulais obtenir.
+Ce n'est pas un défaut passager qu'on corrigera dans la prochaine version : c'est la conséquence directe de la manière dont ces systèmes fonctionnent. Le modèle prédit du texte : il n'exécute rien en écrivant, il ne connaît pas les cas particuliers de ton problème, il ne sait pas ce que tu voulais obtenir.
+
+!!! info "Et les IA qui exécutent leur code ?"
+    Depuis peu, certains assistants de programmation (on parle d'**agents**) peuvent **exécuter** le code qu'ils écrivent et lancer des tests. C'est un vrai progrès. Mais :
+
+    - ils testent ce qu'ils ont **compris** de ta demande, pas forcément ce que tu voulais ;
+    - ils choisissent **eux-mêmes** leurs tests — et peuvent oublier la valeur du seuil ou les nombres négatifs ;
+    - le code est toujours écrit par un modèle qui produit du **plausible**.
+
+    **La vérification finale reste la tienne.**
 
 ### <span style="color:#2e7d32">Ce qu'elle ne fait pas</span>
 
@@ -33,7 +42,7 @@ Ce n'est pas un défaut passager qu'on corrigera dans la prochaine version : c'e
 | --- | --- |
 | produire un code qui a l'air correct | vérifier qu'il donne le bon résultat |
 | répondre très vite | savoir ce que tu voulais vraiment |
-| reprendre des solutions déjà vues | exécuter le programme pour le tester |
+| reprendre des solutions déjà vues | deviner les cas particuliers de ton problème |
 | expliquer son code de façon convaincante | garantir que son explication est juste |
 
 !!! warning "Le piège de la confiance"
@@ -207,16 +216,16 @@ Une IA n'invente pas ses réponses : elle les construit à partir de ce qu'elle 
 Une IA générative ne tourne pas sur ton ordinateur : elle tourne dans des **centres de données**, des bâtiments remplis de machines qui consomment de l'électricité et qu'il faut refroidir.
 
 !!! example "Activité 3 — Estimer une consommation"
-    On estime qu'une requête à un modèle génératif consomme de l'ordre de **3 Wh** (wattheures).
+    En 2023, on estimait qu'une requête à un modèle génératif consommait environ **3 Wh** (wattheures). En 2025, Google a publié **0,24 Wh** pour une requête texte médiane, et des estimations indépendantes donnent environ **0,3 Wh**. Une requête longue, avec raisonnement ou avec image, consomme bien davantage.
 
-    1. Écris une fonction `energie(nb_requetes)` qui renvoie la consommation en **kWh** (1 kWh = 1000 Wh).
-    2. Une classe de 30 élèves fait 20 requêtes chacun pendant une séance. Quelle consommation ?
-    3. Combien d'heures d'éclairage d'une ampoule de 10 W cela représente-t-il ?
+    1. Écris une fonction `energie(nb_requetes, wh_par_requete)` qui renvoie la consommation en **kWh** (1 kWh = 1000 Wh).
+    2. Une classe de 30 élèves fait 20 requêtes chacun pendant une séance. Calcule la consommation avec **0,3 Wh**, puis avec **3 Wh** par requête.
+    3. Combien d'heures d'éclairage d'une ampoule LED de 10 W cela représente-t-il dans chaque cas ?
 
 ??? success "Corrigé"
     ```python
-    def energie(nb_requetes):
-        return round(nb_requetes * 3 / 1000, 2)
+    def energie(nb_requetes, wh_par_requete):
+        return round(nb_requetes * wh_par_requete / 1000, 2)
 
 
     def heures_ampoule(kwh, watts):
@@ -224,18 +233,36 @@ Une IA générative ne tourne pas sur ton ordinateur : elle tourne dans des **ce
     ```
 
     ```text
-    >>> energie(30 * 20)
+    >>> energie(30 * 20, 0.3)
+    0.18
+    >>> heures_ampoule(0.18, 10)
+    18.0
+    >>> energie(30 * 20, 3)
     1.8
     >>> heures_ampoule(1.8, 10)
     180.0
     ```
 
-    Une séance de classe représente environ **1,8 kWh**, soit l'équivalent de **180 heures** d'une ampoule de 10 W — près de huit jours d'éclairage continu.
+    | Estimation | Consommation de la séance | Ampoule de 10 W |
+    | --- | --- | --- |
+    | 2025 : 0,3 Wh par requête | 0,18 kWh | 18 heures |
+    | 2023 : 3 Wh par requête | 1,8 kWh | 180 heures (près de 8 jours) |
 
-    !!! warning "Prudence avec ce chiffre"
-        L'estimation de 3 Wh est un **ordre de grandeur**, pas une mesure. La consommation réelle dépend du modèle utilisé, de la longueur de la réponse, du centre de données et du mix électrique du pays.
+    **Un facteur 10** entre les deux estimations. Ce qui explique l'écart : des modèles plus efficaces, des mesures enfin publiées, des méthodes de calcul différentes. Le chiffre dépend **de qui le calcule et comment**.
 
-        Les entreprises publient rarement ces données. Savoir **d'où vient un chiffre** — et dire quand on ne le sait pas — fait partie de l'esprit critique attendu.
+    !!! warning "Prudence avec ces chiffres"
+        Ces chiffres sont des **ordres de grandeur**, pas des mesures. La consommation réelle dépend du modèle utilisé, de la longueur de la réponse, du raisonnement demandé, du centre de données et du mix électrique du pays.
+
+        Les chiffres les plus récents sont souvent publiés **par les entreprises elles-mêmes**. Savoir **d'où vient un chiffre** — et dire quand on ne le sait pas — fait partie de l'esprit critique attendu.
+
+    !!! info "À l'échelle de la planète"
+        - En 2024, les centres de données ont consommé environ **415 TWh**, soit **1,5 %** de l'électricité mondiale.
+        - L'Agence internationale de l'énergie prévoit environ **945 TWh en 2030**, l'IA étant le principal moteur de cette hausse.
+        - Google estime aussi qu'une requête médiane consomme 0,26 mL d'eau (environ **5 gouttes**) pour refroidir les serveurs.
+
+        Une requête coûte peu ; des **milliards de requêtes par jour** coûtent beaucoup.
+
+        *Sources : Agence internationale de l'énergie, rapport* Energy and AI *(2025) ; Google (août 2025).*
 
     !!! note "À mettre en regard"
         Ce n'est ni négligeable ni catastrophique en soi : c'est un **coût réel**, à mettre en balance avec l'usage. La bonne question n'est pas « faut-il l'interdire ? » mais « cette requête valait-elle ce coût ? ».
@@ -260,6 +287,20 @@ Une IA générative ne tourne pas sur ton ordinateur : elle tourne dans des **ce
 
     La différence tient entièrement à la **déclaration**. Un professionnel qui utilise un outil le dit ; c'est ce qui permet à ses collègues de vérifier.
 
+!!! info "Ce que disent les textes aujourd'hui"
+    **Au lycée — cadre d'usage de l'IA en éducation (juin 2025)**
+
+    - L'IA s'utilise en classe **avec l'accord et l'accompagnement** de l'enseignant.
+    - Un travail réalisé en tout ou partie par une IA **sans autorisation** est une **fraude scolaire**.
+    - Aucune **donnée personnelle** dans les services grand public. Une formation aux enjeux de l'IA est prévue en **2de**.
+
+    **En Europe — le règlement sur l'IA (AI Act)**
+
+    - Il s'applique progressivement depuis 2025 aux entreprises qui fournissent ou utilisent des IA.
+    - Depuis le **2 août 2026**, un chatbot doit indiquer qu'il est une IA, et les contenus générés (dont les deepfakes) doivent être **signalés**.
+
+    Même logique que la règle 3 : **on dit quand une IA est intervenue**.
+
 ## <span style="color:#1565c0">Où tourne tout cela ?</span>
 
 !!! info "Une question à poser dès maintenant"
@@ -273,6 +314,8 @@ Une IA générative ne tourne pas sur ton ordinateur : elle tourne dans des **ce
 
     C'est ce qu'on appelle la question de la **souveraineté numérique** : la capacité d'un pays, d'une administration ou d'une école à maîtriser les outils dont elle dépend.
 
+    Des acteurs européens existent (par exemple **Mistral AI**, en France), et le cadre d'usage de l'Éducation nationale recommande de privilégier les **outils libres**.
+
 !!! danger "Une règle immédiate"
     Ne saisis jamais dans une requête des informations personnelles — les tiennes ou celles d'autrui : nom complet, adresse, numéro de téléphone, coordonnées, situation privée.
 
@@ -283,12 +326,12 @@ Une IA générative ne tourne pas sur ton ordinateur : elle tourne dans des **ce
 !!! question "Teste tes connaissances"
     1. Pourquoi dit-on qu'une IA générative produit du « plausible » ?
     2. Le code C fonctionnait sur des notes mais échouait sur des températures. Comment appelle-t-on ce phénomène ?
-    3. Quels deux cas faut-il toujours tester dans un programme qui compare à un seuil ?
+    3. Quelles valeurs faut-il toujours tester dans un programme qui compare à un seuil ?
     4. Que faut-il faire avant de rendre un code qu'on n'a pas écrit soi-même ?
     5. Cite deux raisons pour lesquelles il ne faut pas saisir de données personnelles dans une requête.
 
 ??? success "Réponses"
-    1. Parce qu'elle a appris à prolonger un texte de la façon la plus **vraisemblable** au vu de ses données d'entraînement — pas à vérifier que le résultat est correct. Elle n'exécute ni ne teste le programme.
+    1. Parce qu'elle a appris à prolonger un texte de la façon la plus **vraisemblable** au vu de ses données d'entraînement — pas à vérifier que le résultat est correct. Même un outil qui exécute son code ne sait pas ce que tu voulais obtenir.
     2. Un **biais** : ce qui est fréquent dans les données d'entraînement (des nombres positifs) devient la réponse par défaut, même quand il ne convient pas.
     3. La valeur **exacte du seuil**, et les valeurs juste au-dessus et juste en dessous.
     4. Le **comprendre** ligne à ligne, le **tester** (y compris sur les cas limites), et **déclarer** qu'il a été généré.
@@ -297,10 +340,10 @@ Une IA générative ne tourne pas sur ton ordinateur : elle tourne dans des **ce
 ## <span style="color:#1565c0">Ce qu'il faut retenir</span>
 
 !!! success "L'essentiel de ce bloc"
-    - Une IA générative produit du **plausible**, pas du vrai — elle n'exécute ni ne teste ce qu'elle écrit.
+    - Une IA générative produit du **plausible**, pas du vrai — et même quand elle exécute son code, elle ne sait pas ce que tu voulais.
     - Un code faux **ne plante pas forcément** : il peut renvoyer un résultat crédible. Seul le **test** permet de trancher.
     - Ce qui est **fréquent** dans les données d'entraînement devient la réponse par défaut : c'est le mécanisme du **biais**.
-    - Chaque requête a un **coût énergétique** réel.
+    - Chaque requête a un **coût énergétique** réel — faible à l'unité, considérable à l'échelle de milliards de requêtes.
     - Utiliser, oui — mais **comprendre**, **tester**, **déclarer**, et ne jamais y mettre de données personnelles.
 
 !!! quote "Le mot de la fin"
